@@ -1,0 +1,21 @@
+UV 		Groupe 	Jour 	Début 	Fin 	Fréquence 	Salle(s)
+MTB1 	G 	CM 1 	lundi 	8:30 	10:00 	1 	P 239
+TNA1 	G 	TP 1 	lundi 	10:15 	13:15 	1 	T 305
+IFB1 	G 	CM 1 	mardi 	8:30 	10:00 	1 	P 305
+MTB1 	G 	TD 1 	mardi 	10:15 	12:15 	1 	P 323
+IFB1 	G 	TD 1 	mardi 	14:00 	16:00 	1 	P 305
+PSB1 	G 	CM 1 	mercredi 	8:00 	10:00 	1 	P 239
+SO10 	G 	TD 1 	mercredi 	10:15 	12:15 	2 	P 239
+IFB1 	G 	TD 1 	mercredi 	10:15 	12:15 	1 	P 305
+SO10 	G 	CM 1 	mercredi 	10:15 	12:15 	2 	P 239
+LE03 		CM 2 	mercredi 	13:00 	14:00 	1 	T 306
+MDB1 	G 	TD 1 	mercredi 	14:00 	16:00 	1 	P 143
+LE03 		TD 6 	mercredi 	16:15 	18:15 	1 	P 369
+MTB1 	G 	CM 1 	jeudi 	8:30 	10:00 	1 	P 418
+TNA1 	G 	CM 1 	jeudi 	10:15 	12:15 	1 	T 306
+MTB1 	G 	TD 1 	jeudi 	13:00 	14:00 	1 	P 323
+PSB1 	G 	TD 1 	vendredi 	8:00 	10:00 	1 	P 130
+SO10 	G 	TD 1 	vendredi 	10:15 	12:15 	2 	P 130
+SO10 	G 	CM 1 	vendredi 	10:15 	12:15 	2 	P 108b
+PSB1 	G 	TP 1 	vendredi 	14:00 	16:00 	2 	P 224
+LE03 		TP 5 	vendredi 	16:15 	17:45 	1 	P 365
