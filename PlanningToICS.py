@@ -21,7 +21,6 @@
 
 from ics import Calendar, Event
 import re
-import pandas as pd
 from datetime import datetime, timedelta
 from os import path, listdir
 import csv
