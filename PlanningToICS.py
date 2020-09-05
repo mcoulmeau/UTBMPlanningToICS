@@ -42,8 +42,11 @@ frStrings = {
     'noSemesterFile': "Erreur : aucun calendrier semestriel n'a été trouvé dans le répertoire courant. Il est toutefois possible d'en créer un en suivant le modèle donnée dans le README. Merci de recommencer une fois le fichier créé.",
     'severalSemCals': "Plusieurs calendriers semestriels ont été trouvés : {}. Merci de sélectionner celui à considérer en saisissant le code correspondant (A20 par exemple) : ",
     'wrongCode': "La saisie ne correspond pas à un code de semestre. Recommence : ",
-    'errorPeriods' : "Erreur dans le calendrier du semestre : au moins une période est invalide (début>fin) ou porte un type erroné (différent de A/B)",
-    'overlappingPeriods' : "Erreur dans le calendrier du semestre : au moins deux périodes se chevauchent"
+    'errorPeriods' : "Erreur dans le calendrier du semestre : au moins une période est invalide (dates incohérentes ou début>fin) ou porte un type erroné (différent de A/B)",
+    'overlappingPeriods' : "Erreur dans le calendrier du semestre : les deux périodes suivantes se chevauchent : {} et {}",
+    'success' : "Opération terminée ({} événements créés en tout) ! Tu peux maintenant récupérer le fichier output.ics créé dans le répertoire courant, et l'importer sur Google Agenda (ou équivalent).",
+    'errorWritingICS' : "",
+    'errorReadingICS' : ""
 }
 
 enStrings = {
@@ -63,7 +66,10 @@ enStrings = {
     'severalSemCals': "Several semester calendars were found : {}. Please select the one to consider by entering the corresponding code (A20 for example) : ",
     'wrongCode': "Given string does not match a semester code. Please try again : ",
     'errorPeriods' : "Error in semester calendar : at least one period is erroneous (start>end) or has an invalid type (different from A/B)",
-    'overlappingPeriods' : "Error in semester calendar : at least two periods are overlapping"
+    'overlappingPeriods' : "Error in semester calendar : following periods are overlapping : {} and {}.",
+    'success' : "Operation successfully completed ({} events have been created) ! You can now find the output.ics file into the working directory, and upload it on Google Agenda (or an equivalent software).",
+    'errorWritingICS' : "",
+    'errorReadingICS' : ""
 }
 
 daysOfWeekFR = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
@@ -75,16 +81,19 @@ daysOfWeek = []
 regex_dict = {
     'firstline': '^UV\s*Groupe\s*Jour\s*Début\s*Fin\s*Fréquence\s*Salle\(s\)\s*$',
     'middleline': '^\s*[A-Z0-9]{4}\s+([A-Z]\s+){0,1}(CM|TD|TP)\s[0-9]{1,2}\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi)\s+([0-9]{1,2}:[0-9]{1,2}\s+){2}[1-2]\s+[A-Z]\s[0-9a-z]{3,4}\s*$',
-    'semesterFile': '^SEM_(A|P)[0-9]{2}.csv$'
+    'semesterFile': '^SEM_(A|P)[0-9]{2}.csv$',
+    'ICSDatetime' : "^(DTSTART|DTEND):[0-9]{8}T[0-9]{6}Z$"
 }
 
 regex = {}  # dict containing compiled regexs
+NbEventsCreated = 0
+OutputFileName = "output.ics"
+
 for key in regex_dict:
     regex[key] = re.compile(regex_dict[key])
 
 def checkFileExistence(filename):
     return path.exists(filename)
-
 
 def validateFile(filename):
     if len(filename) < 5:
@@ -98,7 +107,6 @@ def validateFile(filename):
         return False
     return True
 
-
 def askGroups(classes):
     Groups = []
     print(VerbList['introaskgroup'])
@@ -111,14 +119,12 @@ def askGroups(classes):
             Groups.append([classes.index(Class), group])
     return Groups
 
-
 def padTimeWithZeros(timeString):
     DPPos = timeString.index(':')
     b = timeString[0:DPPos]
     if int(b) < 10 and timeString[0] != '0':
         timeString = '0'+timeString
     return timeString
-
 
 def ReadTxt(filename):
     with open(filename, 'r') as textfile:
@@ -157,7 +163,6 @@ def ReadTxt(filename):
         Classes.append(newClass)
     return Classes
 
-
 def findSemesterFile():
     Candidates = [f for f in listdir('.') if path.isfile(f)]
     finalCands = []
@@ -183,23 +188,25 @@ def CheckSemester(filename):  # returns calendar min and max if
     with open(filename, 'r') as SemCal:
         reader = csv.DictReader(SemCal, delimiter=';')
         for row in reader:
-            startDTT = datetime.strptime(row['START'], '%d/%m/%y')
-            endDT = datetime.strptime(row['END'], '%d/%m/%y')
+            try:
+                startDTT = datetime.strptime(row['START'], '%d/%m/%y')
+                endDT = datetime.strptime(row['END'], '%d/%m/%y')
+            except ValueError:
+                return False
             if startDTT > endDT or row['TYPE'] not in ['A', 'B']:
                 return False
             periods.append([startDTT, endDT, row['TYPE']])
     return periods
 
-
 def overlappingTwoPeriods(start_a, end_a, start_b, end_b):
-    return start_b <= end_a or start_a<=end_b
+    return start_a<=start_b and start_b<=end_a or start_b<=start_a and start_a<=end_b
 
-def overlappingPeriods(periods):
-    for period in periods:
-        for period2 in periods[periods.index(period)+1:]:
+def overlappingPeriods(per):
+    for period in per:
+        for period2 in per[per.index(period)+1:]:
             if overlappingTwoPeriods(period[0],period[1],period2[0],period2[1]):
-                return False
-    return True
+                return [period,period2]
+    return False
 
 def getGroupOfClass(groups, class_index):
     for group in groups:
@@ -212,10 +219,9 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 def CreateCalendar(groups, Classes, periods):
+    global NbEventsCreated
     cal = Calendar()
     dateFormat = "%Y-%m-%d %H:%M:%S"
-    for per in periods:
-        print(per)
     for period in periods:
         FirstWeekDay = period[0].weekday()
         LastWeekDay = period[1].weekday()
@@ -234,11 +240,31 @@ def CreateCalendar(groups, Classes, periods):
                         e.end = endDT.strftime(dateFormat)
                         e.location = Class[6]
                         e.name = Class[0]+" ("+Class[1]+")"
-                        cal.events.add(e)          
+                        cal.events.add(e)
+                        NbEventsCreated+=1          
     return cal
 
-def PrintReport(cal): #prints a brief report with number of events created
-    pass
+def LocalizeICSTimes(filename): #deletes all Z characters in UTC timestamps inside ICS file, replacing all UTC-based times by local ones
+    try:
+        with open(filename,'r') as ICSFile:
+            data = ICSFile.readlines()
+        ICSFile.close()
+    except EnvironmentError:
+        return False
+    newData = []
+    for line in data:
+        if(regex['ICSDatetime'].match(line)):
+            newData.append(line.replace('00Z','00'))
+        else:
+            newData.append(line)
+    try:
+        with open(filename,'w') as ICSFile:
+            ICSFile.writelines(newData)
+        ICSFile.close()
+    except EnvironmentError:
+        return False
+    return True
+
 
 if __name__ == "__main__":
     print("**** UTBM PlanningToICS Script ****\nAuthor:\n")
@@ -269,8 +295,6 @@ if __name__ == "__main__":
     if not Classes:
         exit(0)
 
-    Groups = askGroups(Classes)
-
     SemFile = findSemesterFile()
     if not SemFile:
         exit(0)
@@ -278,13 +302,24 @@ if __name__ == "__main__":
     if not periods:
         print(VerbList['errorPeriods'])
         exit(0)
-    if overlappingPeriods(periods):
-        print(VerbList['overlappingPeriods'])
+    overlap = overlappingPeriods(periods)
+    if overlap:
+        print(VerbList['overlappingPeriods'].format(overlap[0][0].strftime("%d/%m/%Y")+" -> "+overlap[0][1].strftime("%d/%m/%Y"),overlap[1][0].strftime("%d/%m/%Y")+" -> "+overlap[1][1].strftime("%d/%m/%Y")))
         exit(0)
+
+    Groups = askGroups(Classes)
 
     FinalCalendar = CreateCalendar(Groups, Classes, periods)
 
-    with open("output.ics", 'w') as ICSFIle:
-        ICSFIle.writelines(FinalCalendar)
-    
-    print("DONE")
+    try:
+        with open(OutputFileName, 'w') as ICSFile:
+            ICSFile.writelines(FinalCalendar)
+    except EnvironmentError:
+        print(VerbList['errorWritingICS'])
+        exit(0)
+
+    if not LocalizeICSTimes(OutputFileName):
+        print(VerbList['errorReadingICS'])
+        exit(0)
+
+    print(VerbList['success'].format(NbEventsCreated))

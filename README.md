@@ -49,6 +49,7 @@ Feel free to contribute to this project ! Here are some possible improvments :
 * Create a GUI
 * Turn it into a standalone utility, maybe a portable .exe for Windows users
 * Use ICS RRULES for repeating events to link them together
+* Detect overlapping classes, then warn and ask users which ones they want to keep
 * Each semester, as the UTBM administration gives us the semester calendar, feel free to turn it into a SEM_XXX.csv file that can be read by this script. Please respect the following structure (only working periods must be listed) :
 ```
 START;END;TYPE
@@ -71,3 +72,4 @@ START;END;TYPE
 07/01/21;07/01/21;A
 08/01/21;08/01/21;B
 ```
+As this file is the same for all UTBM students, feel free to push it to this repository so that others can benefit from it.
