@@ -22,6 +22,7 @@
 from ics import Calendar, Event
 import re
 from datetime import datetime, timedelta
+import codecs
 from os import path, listdir
 import csv
 
@@ -126,7 +127,7 @@ def padTimeWithZeros(timeString):
     return timeString
 
 def ReadTxt(filename):
-    with open(filename, 'r') as textfile:
+    with codecs.open(filename, 'r', encoding='utf-8') as textfile:
         raw_lines = []
         for line in textfile:
             raw_lines.append(line.replace('\t', ' ').replace('\n', ''))
