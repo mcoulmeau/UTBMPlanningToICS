@@ -4,14 +4,14 @@
 Valentin Mercy - Licium
 
 ## Script description ##
-UTBMPlanningToICS aims to simplify classes planning understanding for UTBM's students (UTBM = University of Technology of Belfort-Montbeliard). More precisely, this python script allows all UTBM students to turn the unformatted list of courses (which can be found on [their personnal space](https://monespace.utbm.fr/)) into a proper ICS file they can directly import on their favourite schedule utility, such as Google Agenda for example.
+UTBMPlanningToICS aims to simplify classes planning comprehension for UTBM students (UTBM = University of Technology of Belfort-Montbeliard). More precisely, this python script allows all UTBM students to turn the unformatted list of courses (which can be found on [their personnal space](https://monespace.utbm.fr/)) into a proper ICS file they can directly import on their favourite scheduling utility, such as Google Agenda for example.
 
 ## Supported languages ##
 * English
 * French
 
 ## How to use it ##
-* First, open a bash terminal, clone this repository and change your working directory to go inside :
+* First, open a bash terminal, clone this repository and make it become your working directory :
 ```
 git clone https://github.com/Valentin68/UTBMPlanningToICS.git
 cd UTBMPlanningToICS/
@@ -39,7 +39,7 @@ LC00 		TP 4 	vendredi 	16:15 	17:15 	1 	P 145
 * Save this file into the working directory, that should also contain the main script ```PlanningToICS.py``` and the list of A/B weeks for the next semester : ```SEM_A20.csv``` for example.
 * Launch the main script :
 ```
-python PlanningToICS.py
+python3 PlanningToICS.py
 ```
 * Follow the instructions
 * You should now have a new file named ```output.ics``` in your working directory. You can directly import it in your Google Agenda for example, and enjoy the result !

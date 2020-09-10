@@ -14,17 +14,17 @@
 *
 * Purpose           : Creates an ICS file from UTBM's planning system output. UTBM = University of Technology of Belfort-Montbeliard.
 *
-* Description       : This script allows UTBM students to translate their unformatted planning (generated at the beginning of each semester and found on the university web portal) into an ICS file that can be imported on modern planning tools like Google Agenda, iCalendar, etc...).
+* Description       : This script allows UTBM students to translate their unformatted planning (generated at the beginning of each semester and found on the university web portal) into an ICS file that can be imported on modern planning tools like Google Agenda, Apple iCalendar, etc...).
 *
 |**********************************************************************;
 '''
 
 from ics import Calendar, Event
 import re
-import pandas as pd
 from datetime import datetime, timedelta
 from os import path, listdir
 import csv
+from flask import Flask, render_template
 
 frStrings = {
     'welcome': "Bienvenue sur l'utilitaire UTBMPlanningToICS !\nCelui-ci te permet de convertir ton emploi du temps consultable à chaque début de semestre sur uPortal, en un agenda numérique au format standard ICS. En important ce dernier sur Google Agenda ou iCalendar (par exemple), tu pourras consulter tes horaires et salles de cours beaucoup plus facilement (sur ton PC, ton smartphone, etc...). Fini la corvée de la saisie de l'emploi du temps à chaque début de semestre !\nCommence par saisir le nom du fichier txt (avec l'extension .txt) dans lequel tu as copié-collé ton emploi du temps uPortal (lire le README.md maintenant si ce n'est pas déjà fait). Ce fichier doit se trouver dans le répertoire racine du projet !",
@@ -45,8 +45,7 @@ frStrings = {
     'errorPeriods' : "Erreur dans le calendrier du semestre : au moins une période est invalide (dates incohérentes ou début>fin) ou porte un type erroné (différent de A/B)",
     'overlappingPeriods' : "Erreur dans le calendrier du semestre : les deux périodes suivantes se chevauchent : {} et {}",
     'success' : "Opération terminée ({} événements créés en tout) ! Tu peux maintenant récupérer le fichier output.ics créé dans le répertoire courant, et l'importer sur Google Agenda (ou équivalent).",
-    'errorWritingICS' : "",
-    'errorReadingICS' : ""
+    'errorWritingICS' : "Une erreur s'est produite lors de la finalisation du fichier ICS ({})",
 }
 
 enStrings = {
@@ -68,8 +67,7 @@ enStrings = {
     'errorPeriods' : "Error in semester calendar : at least one period is erroneous (start>end) or has an invalid type (different from A/B)",
     'overlappingPeriods' : "Error in semester calendar : following periods are overlapping : {} and {}.",
     'success' : "Operation successfully completed ({} events have been created) ! You can now find the output.ics file into the working directory, and upload it on Google Agenda (or an equivalent software).",
-    'errorWritingICS' : "",
-    'errorReadingICS' : ""
+    'errorWritingICS' : "An error occured while rendering ICS file : ({})",
 }
 
 daysOfWeekFR = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
@@ -248,7 +246,6 @@ def LocalizeICSTimes(filename): #deletes all Z characters in UTC timestamps insi
     try:
         with open(filename,'r') as ICSFile:
             data = ICSFile.readlines()
-        ICSFile.close()
     except EnvironmentError:
         return False
     newData = []
@@ -260,19 +257,35 @@ def LocalizeICSTimes(filename): #deletes all Z characters in UTC timestamps insi
     try:
         with open(filename,'w') as ICSFile:
             ICSFile.writelines(newData)
-        ICSFile.close()
     except EnvironmentError:
         return False
     return True
 
+def CheckICS(filename):
+    startOfEvents = 0
+    endOfEvents = 0
+    try:
+        with open(filename,'r') as ICSFile:
+            data = ICSFile.readlines()
+            for line in data:
+                if "BEGIN:VEVENT" in line:
+                    startOfEvents+=1
+                elif "END:VEVENT" in line:
+                    endOfEvents+=1
+    except EnvironmentError:
+        print(VerbList['errorWritingICS'].format("cannot check ICS file integrity" if SelectedLang=='EN' else "impossible de vérifier l'intégrité du fichier ICS"))
+        exit(0)
+    if startOfEvents==endOfEvents:
+        return startOfEvents-NbEventsCreated
+    print(VerbList['errorWritingICS'].format("cannot check ICS file integrity" if SelectedLang=='EN' else "impossible de vérifier l'intégrité du fichier ICS"))
+    exit(0)
 
 if __name__ == "__main__":
     print("**** UTBM PlanningToICS Script ****\nAuthor:\n")
     print("| | | |/ _/ | || |  V  | \n| |_| | \_| | \/ | \_/ | \n|___|_|\__/_|\__/|_| |_| \n\
     ")
     print("Version 1.0")
-    SelectedLang = input(
-        "Choose your language - Selectionne ta langue :\n-FR\n-EN\n : ")
+    SelectedLang = input("Choose your language - Selectionne ta langue :\n-FR\n-EN\n : ")
     SelectedLang = SelectedLang.lower()
     while(SelectedLang != "fr" and SelectedLang != "en"):
         SelectedLang = input(
@@ -315,11 +328,17 @@ if __name__ == "__main__":
         with open(OutputFileName, 'w') as ICSFile:
             ICSFile.writelines(FinalCalendar)
     except EnvironmentError:
-        print(VerbList['errorWritingICS'])
+        print(VerbList['errorWritingICS'].format("writing permission denied" if SelectedLang=='EN' else "permission d'écriture refusée"))
         exit(0)
-
+    EventsDelta = CheckICS(OutputFileName)
+    if EventsDelta:
+        if SelectedLang == 'en':
+            print(VerbList['errorWritingICS'].format(str(abs(EventsDelta))+(" missing" if EventsDelta<0 else "extra")+" event"+("s" if abs(EventsDelta)!=1 else "")))
+        elif SelectedLang == 'fr':
+            print(VerbList['errorWritingICS'].format(str(abs(EventsDelta))+" événements "+("s" if abs(EventsDelta)!=1 else "")+("manquants" if EventsDelta<0 else "en trop")))
+        exit(0)
     if not LocalizeICSTimes(OutputFileName):
-        print(VerbList['errorReadingICS'])
+        print(VerbList['errorWritingICS'].format("reading permission denied" if SelectedLang=='EN' else "permission de lecture refusée"))
         exit(0)
 
     print(VerbList['success'].format(NbEventsCreated))
