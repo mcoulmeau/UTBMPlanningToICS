@@ -281,7 +281,18 @@ def CheckICS(filename):
     print(VerbList['errorWritingICS'].format("cannot check ICS file integrity" if SelectedLang=='EN' else "impossible de vérifier l'intégrité du fichier ICS"))
     exit(0)
 
-if __name__ == "__main__":
+app = Flask(__name__)
+@app.route("/")
+def main():
+    available_sems = [
+        {
+            "title" : "A20",
+            "available" : True
+        }
+    ]
+    return render_template("index.html",available_sems = available_sems)
+    
+    """ 
     print("**** UTBM PlanningToICS Script ****\nAuthor:\n")
     print("| | | |/ _/ | || |  V  | \n| |_| | \_| | \/ | \_/ | \n|___|_|\__/_|\__/|_| |_| \n\
     ")
@@ -342,4 +353,7 @@ if __name__ == "__main__":
         print(VerbList['errorWritingICS'].format("reading permission denied" if SelectedLang=='EN' else "permission de lecture refusée"))
         exit(0)
 
-    print(VerbList['success'].format(NbEventsCreated))
+    print(VerbList['success'].format(NbEventsCreated)) """
+
+if __name__=="__main__":
+    app.run(debug=True, host="0.0.0.0",port=8081)

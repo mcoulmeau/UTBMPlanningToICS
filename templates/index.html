@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>UTBM Planning to ICS</title>
+</head>
+
+<body>
+    <h1>Convertisseur emploi du temps UTBM -> .ics</h1>
+    <p>Grâce à ce convertisseur, finie la corvée du recopiage d'emploi du temps ! Transforme directement la liste de cours que te fournit <a href="https://cas.utbm.fr/login?service=https://monespace.utbm.fr/Login">l'espace étudiant</a> en un fichier .ics
+        directement importable dans <a href="">Google Agenda</a></p>
+    <label>Pour commencer, colle ci-dessous ta liste de cours (copiée depuis ton <a href="https://cas.utbm.fr/login?service=https://monespace.utbm.fr/Login">espace étudiant UTBM</a>) :</br><textarea cols="100" rows="30" placeholder="UV 		Groupe 	Jour 	Début 	Fin 	Fréquence 	Salle(s)
+MI44 		CM 1 	lundi 	8:00 	10:00 	1 	A 200
+MI44 		TD 2 	mardi 	16:15 	18:15 	1 	A 314"></textarea></label></br>
+    <label>Sélectionne le semestre :</br>
+        {% for sem in available_sems %}
+        <label>{{ sem['title'] }}
+            {% if sem['available'] %}
+            (actuel)
+            {% endif %}
+            <input type="radio" name="sem" value="A20" {% if sem['available'] %}
+            checked
+            {% endif %}></label> {% endfor %}
+    </label>
+    </label>
+    <input type="submit" value="Suivant ->">
+</body>
+
+</html>
