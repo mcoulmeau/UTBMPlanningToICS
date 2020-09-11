@@ -138,7 +138,8 @@ def ReadTxt(filename):
         matchs = 1
     else:
         print(VerbList['wrongheader'])
-    for line in raw_lines[1:]:
+    #TODO: review regexs to allow several rooms and fix error relative to tabs
+    """ for line in raw_lines[1:]:
         if regex['middleline'].match(line):
             matchs += 1
         else:
@@ -146,7 +147,7 @@ def ReadTxt(filename):
     if matchs != len(raw_lines):
         print(VerbList['requestreview'])
         print("Nombre de matchs : ", matchs)
-        return False
+        return False """
     print(VerbList['readsuccess'])
 
     Classes = [] #each element must be a subarray in the form [UV_code, type of class, day of week index, start_time, end_time, frequency, room]. room can be "Distanciel" if class is given remotely.
