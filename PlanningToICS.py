@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 import codecs
 from os import path, listdir
 import csv
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 frStrings = {
     'welcome': "Bienvenue sur l'utilitaire UTBMPlanningToICS !\nCelui-ci te permet de convertir ton emploi du temps consultable à chaque début de semestre sur uPortal, en un agenda numérique au format standard ICS. En important ce dernier sur Google Agenda ou iCalendar (par exemple), tu pourras consulter tes horaires et salles de cours beaucoup plus facilement (sur ton PC, ton smartphone, etc...). Fini la corvée de la saisie de l'emploi du temps à chaque début de semestre !\nCommence par saisir le nom du fichier txt (avec l'extension .txt) dans lequel tu as copié-collé ton emploi du temps uPortal (lire le README.md maintenant si ce n'est pas déjà fait). Ce fichier doit se trouver dans le répertoire racine du projet !",
@@ -81,6 +81,7 @@ regex_dict = {
     'firstline': '^UV\s*Groupe\s*Jour\s*Début\s*Fin\s*Fréquence\s*Salle\(s\)\s*$',
     'middleline': '^\s*[A-Z0-9]{4}\s+([A-Z]\s+){0,1}(CM|TD|TP)\s[0-9]{1,2}\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi)\s+([0-9]{1,2}:[0-9]{1,2}\s+){2}[1-2]\s+[A-Z]\s[0-9a-z]{3,4}\s*$',
     'semesterFile': '^SEM_(A|P)[0-9]{2}.csv$',
+    'semesterCode' : '(A|P)[0-9]{2}$',
     'ICSDatetime' : "^(DTSTART|DTEND):[0-9]{8}T[0-9]{6}Z$"
 }
 
@@ -125,27 +126,27 @@ def padTimeWithZeros(timeString):
         timeString = '0'+timeString
     return timeString
 
-def ReadTxt(filename):
-    with codecs.open(filename, 'r', encoding='utf-8') as textfile:
-        raw_lines = []
-        for line in textfile:
-            raw_lines.append(line.replace('\t', ' ').replace('\n', ''))
-        textfile.close()
+def ParseClassesInput(content):
+    raw_lines = []
+    for line in content:
+        raw_lines.append(line.replace('\t', ' ').replace('\n', ''))
     matchs = 0
     if regex['firstline'].match(raw_lines[0]):
         matchs = 1
     else:
-        print(VerbList['wrongheader'])
+        return False
+        #print(VerbList['wrongheader'])
     for line in raw_lines[1:]:
         if regex['middleline'].match(line):
             matchs += 1
         else:
-            print(VerbList['errline'].format(raw_lines.index(line)))
+            return False
+            #print(VerbList['errline'].format(raw_lines.index(line)))
     if matchs != len(raw_lines):
-        print(VerbList['requestreview'])
+        #print(VerbList['requestreview'])
         print("Nombre de matchs : ", matchs)
         return False
-    print(VerbList['readsuccess'])
+    #print(VerbList['readsuccess'])
 
     Classes = []
 
@@ -162,7 +163,7 @@ def ReadTxt(filename):
         Classes.append(newClass)
     return Classes
 
-def findSemesterFile():
+def findSemesterFiles():
     Candidates = [f for f in listdir('.') if path.isfile(f)]
     finalCands = []
     for cand in Candidates:
@@ -172,14 +173,11 @@ def findSemesterFile():
         print(VerbList['noSemesterFile'])
         return False
     if len(finalCands) == 1:
-        return finalCands[0]
+        return [finalCands[0][finalCands[0].index('_')+1:finalCands[0].index('.')]]
     finalCands2 = []
     for cand in finalCands:
         finalCands2.append(cand[cand.index('_')+1:cand.index('.')])
-    select = input(VerbList['severalSemCals'].format(finalCands))
-    while not select in finalCands:
-        select = input(VerbList['wrongCode'])
-    return "SEM_"+select+".csv"
+    return finalCands2
 
 
 def CheckSemester(filename):  # returns calendar min and max if
@@ -281,17 +279,33 @@ def CheckICS(filename):
     print(VerbList['errorWritingICS'].format("cannot check ICS file integrity" if SelectedLang=='EN' else "impossible de vérifier l'intégrité du fichier ICS"))
     exit(0)
 
+def isCurrent(semester):
+    if not regex['semesterCode'].match(semester):
+        return False
+    Now = datetime.now()
+    if Now.month>1 and Now.month<8:
+        return semester[0]=='P' and semester[1:3]==Now.strftime("%y")
+    else:
+        return semester[0]=='A' and semester[1:3]==Now.strftime("%y")
+
 app = Flask(__name__)
 @app.route("/")
 def main():
-    available_sems = [
-        {
-            "title" : "A20",
-            "available" : True
-        }
-    ]
+    available_sems = []
+    for semester in findSemesterFiles():
+        available_sems.append({
+            "title" : semester,
+            "available" : isCurrent(semester)
+        })
     return render_template("index.html",available_sems = available_sems)
-    
+
+@app.route("/",methods=['POST'])
+def step1_post():
+    RawClassesList = request.form["ClassesList"]
+    Classes = ParseClassesInput(RawClassesList)
+    print(Classes)
+    return str(Classes)
+
     """ 
     print("**** UTBM PlanningToICS Script ****\nAuthor:\n")
     print("| | | |/ _/ | || |  V  | \n| |_| | \_| | \/ | \_/ | \n|___|_|\__/_|\__/|_| |_| \n\
