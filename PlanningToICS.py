@@ -28,7 +28,7 @@ import csv
 from flask import Flask, render_template
 
 frStrings = {
-    'welcome': "Bienvenue sur l'utilitaire UTBMPlanningToICS !\nCelui-ci te permet de convertir ton emploi du temps consultable à chaque début de semestre sur uPortal, en un agenda numérique au format standard ICS. En important ce dernier sur Google Agenda ou iCalendar (par exemple), tu pourras consulter tes horaires et salles de cours beaucoup plus facilement (sur ton PC, ton smartphone, etc...). Fini la corvée de la saisie de l'emploi du temps à chaque début de semestre !\nCommence par saisir le nom du fichier txt (avec l'extension .txt) dans lequel tu as copié-collé ton emploi du temps uPortal (lire le README.md maintenant si ce n'est pas déjà fait). Ce fichier doit se trouver dans le répertoire racine du projet !",
+    'welcome': "Bienvenue sur l'utilitaire UTBMPlanningToICS !\nCelui-ci te permet de convertir ton emploi du temps consultable à chaque début de semestre sur l'espace etudiant, en un agenda numérique au format standard ICS. En important ce dernier sur Google Agenda ou iCalendar (par exemple), tu pourras consulter tes horaires et salles de cours beaucoup plus facilement (sur ton PC, ton smartphone, etc...). Fini la corvée de la saisie de l'emploi du temps à chaque début de semestre !\nCommence par saisir le nom du fichier txt (avec l'extension .txt) dans lequel tu as copié-collé ton emploi du temps personnel (lire le README.md maintenant si ce n'est pas déjà fait). Ce fichier doit se trouver dans le répertoire racine du projet !",
     'askfile': "Nom du fichier ? : ",
     'tooshort':   "Erreur : le nom de fichier saisi est trop court",
     'wrongextension': "Erreur : le nom de fichier saisi ne porte pas l'extension .txt",
@@ -50,7 +50,7 @@ frStrings = {
 }
 
 enStrings = {
-    'welcome': "Welcome to the UTBMPlanningToICS utility! \nThis utility allows you to convert your schedule, which can be consulted at the start of each semester on uPortal, into a digital agenda in the standard ICS format. By importing it on Google Calendar or iCalendar (for example), you will be able to consult your scheduled classes and classrooms much more easily (on your PC, your smartphone, etc ...). No more drudgery of entering the schedule at the start of each semester!\nPlease start by typing the full filename (with .txt extension) in which you pasted your uPortal planning (see the README.md before continuing). This file must be placed in the same root folder as PlanningToICS.py !",
+    'welcome': "Welcome to the UTBMPlanningToICS utility! \nThis utility allows you to convert your schedule, which can be consulted at the start of each semester on your personnal space, into a digital agenda in the standard ICS format. By importing it on Google Calendar or iCalendar (for example), you will be able to consult your scheduled classes and classrooms much more easily (on your PC, your smartphone, etc ...). No more drudgery of entering the schedule at the start of each semester!\nPlease start by typing the full filename (with .txt extension) in which you pasted your personnal planning (see the README.md before continuing). This file must be placed in the same root folder as PlanningToICS.py !",
     'askfile': "Filename ? : ",
     'tooshort':   "Error : given filename is too short",
     'wrongextension': "Error : given filename does not have the extension .txt",

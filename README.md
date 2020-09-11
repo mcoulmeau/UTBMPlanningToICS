@@ -4,7 +4,7 @@
 Valentin Mercy - Licium
 
 ## Script description ##
-UTBMPlanningToICS aims to simplify classes planning comprehension for UTBM students (UTBM = University of Technology of Belfort-Montbeliard). More precisely, this python script allows all UTBM students to turn the unformatted list of courses (which can be found on [their personnal space](https://monespace.utbm.fr/)) into a proper ICS file they can directly import on their favourite scheduling utility, such as Google Agenda for example.
+UTBMPlanningToICS aims to simplify classes planning representation for UTBM students (UTBM = University of Technology of Belfort-Montbeliard). More precisely, this python script allows all UTBM students to turn the unformatted list of courses (which can be found on [their personnal space](https://monespace.utbm.fr/)) into a proper ICS file they can directly import on their favourite scheduling utility, such as Google Agenda for example.
 
 ## Supported languages ##
 * English
