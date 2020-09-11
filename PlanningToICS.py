@@ -77,8 +77,8 @@ daysOfWeekEN = ['monday', 'tuesday', 'wednesday',
 daysOfWeek = []
 
 regex_dict = {
-    'firstline': '^UV\s*Groupe\s*Jour\s*Début\s*Fin\s*Fréquence\s*Salle\(s\)\s*$',
-    'middleline': '^\s*[A-Z0-9]{4}\s+([A-Z]\s+){0,1}(CM|TD|TP)\s[0-9]{1,2}\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi)\s+([0-9]{1,2}:[0-9]{1,2}\s+){2}[1-2]\s+[A-Z]\s[0-9a-z]{3,4}\s*$',
+    'firstline': '^UV\s*Groupe\s*Jour\s*Début\s*Fin\s*Fréquence\s*Mode d\'enseignement\s*Salle\(s\)\s*$',
+    'middleline': '^\s*[A-Z0-9]{4}\s+([A-Z]\s+){0,1}(CM|TD|TP)\s[0-9]{1,2}\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi)\s+([0-9]{1,2}:[0-9]{1,2}\s+){2}[1-2]\s\s+(Distanciel|Présentiel)\s+([A-Z]\s[0-9a-z]{3,4})?\s*$',
     'semesterFile': '^SEM_(A|P)[0-9]{2}.csv$',
     'ICSDatetime' : "^(DTSTART|DTEND):[0-9]{8}T[0-9]{6}Z$"
 }
@@ -107,7 +107,10 @@ def validateFile(filename):
 
 def askGroups(classes):
     Groups = []
-    print(VerbList['introaskgroup'])
+    for Class in classes:
+        if Class[5] > 1:
+            print(VerbList['introaskgroup'])
+            break
     for Class in classes:
         if Class[5] > 1:
             group = input(" - "+VerbList['askgroup'].format(Class[0]+" ("+Class[1]+")"+" | " +
@@ -146,7 +149,7 @@ def ReadTxt(filename):
         return False
     print(VerbList['readsuccess'])
 
-    Classes = []
+    Classes = [] #each element must be a subarray in the form [UV_code, type of class, day of week index, start_time, end_time, frequency, room]. room can be "Distanciel" if class is given remotely.
 
     for line in raw_lines[1:]:
         newClass = line.replace('\t', '').split(' ')
@@ -154,10 +157,16 @@ def ReadTxt(filename):
         if not newClass[1] in ['CM', 'TD', 'TP']:
             newClass.pop(1)
         newClass.pop(2)
-        newClass[6] = newClass[6]+newClass[7]
-        newClass.pop(7)
         newClass[2] = daysOfWeekFR.index(newClass[2])
         newClass[5] = int(newClass[5])
+        if newClass[6] == "Distanciel":
+            if len(newClass)==7: #no room provided
+                newClass[6]="Distanciel"
+            else:
+                newClass[6]="Distanciel ("+''.join(newClass[7:])+")"
+        else:
+            newClass[6] = newClass[7]+newClass[8]
+        newClass = newClass[:7]
         Classes.append(newClass)
     return Classes
 

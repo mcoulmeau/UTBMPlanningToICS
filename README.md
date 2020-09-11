@@ -21,22 +21,22 @@ cd UTBMPlanningToICS/
 * Aller sur l'[espace personnel UTBM](https://monespace.utbm.fr/), naviguer vers "Mon dossier étudiant" > "Emploi du temps" et copier (Ctrl-C) la liste des cours **avec l'entête**. Attention : le texte sélectionné doit commencer juste avant le mot "UV" et terminer juste après la salle du dernier cours !
 * Coller (Ctrl-V) le texte copié dans un nouveau fichier texte, lequel doit finalement ressembler à ceci :
 ```
-UV 		Groupe 	Jour 	Début 	Fin 	Fréquence 	Salle(s)
-LO21 		TD 1 	lundi 	8:00 	10:00 	1 	P 130
-LC00 		TD 1 	lundi 	14:00 	16:00 	1 	P 122
-IFD1 		CM 1 	lundi 	16:15 	18:15 	1 	T 305
-PS22 		TD 2 	mardi 	8:00 	10:00 	1 	P 243
-MDA1 	A 	TD 1 	mardi 	14:00 	16:00 	1 	P 323
-MTC7 		TD 2 	mardi 	16:15 	18:15 	1 	P 325
-MDA1 	A 	CM 1 	mercredi 	8:30 	10:00 	1 	P 108b
-LO21 		CM 1 	mercredi 	14:00 	16:00 	1 	T 306
-LO21 		TP 2 	mercredi 	16:15 	19:15 	2 	P 334
-MTC7 		TD 2 	jeudi 	8:00 	10:00 	1 	P 122
-PS22 		CM 1 	jeudi 	10:15 	12:15 	1 	P 108b
-PS22 		TP 2 	vendredi 	8:00 	10:00 	2 	P 226
-IFD1 		CM 1 	vendredi 	10:15 	12:15 	1 	T 305
-MTC7 		CM 1 	vendredi 	14:00 	16:00 	1 	P 243
-LC00 		TP 4 	vendredi 	16:15 	17:15 	1 	P 145
+UV 		Groupe 	Jour 	Début 	Fin 	Fréquence 	Mode d'enseignement 	Salle(s)
+LO21 		TD 1 	lundi 	8:00 	10:00 	1 	Présentiel 	P 130
+LC00 		TD 1 	lundi 	14:00 	16:00 	1 	Présentiel 	P 122
+IFD1 		CM 1 	lundi 	16:15 	18:15 	1 	Présentiel 	T 305
+PS22 		TD 2 	mardi 	8:00 	10:00 	1 	Présentiel 	P 243
+MDA1 	A 	TD 1 	mardi 	14:00 	16:00 	1 	Présentiel 	P 323
+MTC7 		TD 2 	mardi 	16:15 	18:15 	1 	Présentiel 	P 325
+MDA1 	A 	CM 1 	mercredi 	8:30 	10:00 	1 	Présentiel 	P 108b
+LO21 		CM 1 	mercredi 	14:00 	16:00 	1 	Présentiel 	T 306
+LO21 		TP 2 	mercredi 	16:15 	19:15 	2 	Présentiel 	P 334
+MTC7 		TD 2 	jeudi 	8:00 	10:00 	1 	Présentiel 	P 122
+PS22 		CM 1 	jeudi 	10:15 	12:15 	1 	Présentiel 	P 108b
+PS22 		TP 2 	vendredi 	8:00 	10:00 	2 	Présentiel 	P 226
+IFD1 		CM 1 	vendredi 	10:15 	12:15 	1 	Présentiel 	T 305
+MTC7 		CM 1 	vendredi 	14:00 	16:00 	1 	Présentiel 	P 243
+LC00 		TP 4 	vendredi 	16:15 	17:15 	1 	Présentiel 	P 145
 ```
 * Sauvegarder le fichier avec le nom de votre choix (seul format .txt est imposé) à la racine du répertoire courant (qui contient également le script ```PlanningToICS.py``` et la liste des semaines A/B pour le semestre de référence, dans un fichier nommé ```SEM_A20.csv``` par exemple).
 * Installer le module ICS pour **python 3**:
@@ -64,22 +64,22 @@ cd UTBMPlanningToICS/
 * Go to your [UTBM personnal space](https://monespace.utbm.fr/), navigate to "Mon dossier étudiant" > "Emploi du temps" and copy (Ctrl-C) your list of classes **with the header**. Please ensure that your selection starts just before the word "UV" and ends just after the location of the very last class.
 * Paste it into a new .txt file. That file must finally contain something like this :
 ```
-UV 		Groupe 	Jour 	Début 	Fin 	Fréquence 	Salle(s)
-LO21 		TD 1 	lundi 	8:00 	10:00 	1 	P 130
-LC00 		TD 1 	lundi 	14:00 	16:00 	1 	P 122
-IFD1 		CM 1 	lundi 	16:15 	18:15 	1 	T 305
-PS22 		TD 2 	mardi 	8:00 	10:00 	1 	P 243
-MDA1 	A 	TD 1 	mardi 	14:00 	16:00 	1 	P 323
-MTC7 		TD 2 	mardi 	16:15 	18:15 	1 	P 325
-MDA1 	A 	CM 1 	mercredi 	8:30 	10:00 	1 	P 108b
-LO21 		CM 1 	mercredi 	14:00 	16:00 	1 	T 306
-LO21 		TP 2 	mercredi 	16:15 	19:15 	2 	P 334
-MTC7 		TD 2 	jeudi 	8:00 	10:00 	1 	P 122
-PS22 		CM 1 	jeudi 	10:15 	12:15 	1 	P 108b
-PS22 		TP 2 	vendredi 	8:00 	10:00 	2 	P 226
-IFD1 		CM 1 	vendredi 	10:15 	12:15 	1 	T 305
-MTC7 		CM 1 	vendredi 	14:00 	16:00 	1 	P 243
-LC00 		TP 4 	vendredi 	16:15 	17:15 	1 	P 145
+UV 		Groupe 	Jour 	Début 	Fin 	Fréquence 	Mode d'enseignement 	Salle(s)
+LO21 		TD 1 	lundi 	8:00 	10:00 	1 	Présentiel 	P 130
+LC00 		TD 1 	lundi 	14:00 	16:00 	1 	Présentiel 	P 122
+IFD1 		CM 1 	lundi 	16:15 	18:15 	1 	Présentiel 	T 305
+PS22 		TD 2 	mardi 	8:00 	10:00 	1 	Présentiel 	P 243
+MDA1 	A 	TD 1 	mardi 	14:00 	16:00 	1 	Présentiel 	P 323
+MTC7 		TD 2 	mardi 	16:15 	18:15 	1 	Présentiel 	P 325
+MDA1 	A 	CM 1 	mercredi 	8:30 	10:00 	1 	Présentiel 	P 108b
+LO21 		CM 1 	mercredi 	14:00 	16:00 	1 	Présentiel 	T 306
+LO21 		TP 2 	mercredi 	16:15 	19:15 	2 	Présentiel 	P 334
+MTC7 		TD 2 	jeudi 	8:00 	10:00 	1 	Présentiel 	P 122
+PS22 		CM 1 	jeudi 	10:15 	12:15 	1 	Présentiel 	P 108b
+PS22 		TP 2 	vendredi 	8:00 	10:00 	2 	Présentiel 	P 226
+IFD1 		CM 1 	vendredi 	10:15 	12:15 	1 	Présentiel 	T 305
+MTC7 		CM 1 	vendredi 	14:00 	16:00 	1 	Présentiel 	P 243
+LC00 		TP 4 	vendredi 	16:15 	17:15 	1 	Présentiel 	P 145
 ```
 * Save this file into the working directory, that should also contain the main script ```PlanningToICS.py``` and the list of A/B weeks for the next semester : ```SEM_A20.csv``` for example.
 * Install ICS module for **python 3**:
