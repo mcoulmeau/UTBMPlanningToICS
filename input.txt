@@ -1,13 +1,12 @@
 UV 		Groupe 	Jour 	Début 	Fin 	Fréquence 	Mode d'enseignement 	Salle(s)
-MQ46        CM 1    lundi    10:00    11:30    1    Distanciel
-EC05        TD 1    lundi    14:30    15:30    1    Présentiel    P 340
-MA41        TP 1    lundi    16:30    19:30    2    Présentiel    P 206, T 303
-MN41        TD 1    mardi    8:00    9:00    1    Distanciel
-MN41        CM 1    mardi    10:00    11:30    1    Distanciel
-MQ46        TP 2    mardi    14:30    16:00    1    Distanciel
-TN40        CM 1    mercredi    8:00    9:00    1    Distanciel
-LE03        TP 11    mercredi    14:30    16:00    1    Présentiel    P 367
-TN40        TD 3    mercredi    16:30    18:00    1    Distanciel
-MA41        TD 1    vendredi    8:00    9:30    1    Distanciel
-LE03        TD 1    vendredi    14:30    16:00    1    Distanciel
-MN41        TP 6    vendredi    16:30    18:00    1    Distanciel
+VA51 		CM 1 	lundi 	8:00 	9:45 	1 	Présentiel 	B 422
+VA52 		TP 1 	lundi 	13:30 	16:15 	2 	Présentiel 	H 012
+VA50 		TP 1 	lundi 	16:45 	18:30 	1 	Distanciel 	
+VA51 		TD 1 	mardi 	8:00 	9:45 	1 	Présentiel 	B 416, H 012
+VA52 		CM 1 	mardi 	10:15 	12:00 	1 	Présentiel 	B 455
+VA52 		TD 1 	mardi 	14:30 	16:15 	1 	Présentiel 	B 429, H 012
+VA51 		TP 1 	mardi 	16:45 	19:30 	2 	Présentiel 	H 012
+LC01 		TD 1 	jeudi 	14:30 	16:15 	1 	Présentiel 	B 439
+LC01 		TP 1 	jeudi 	16:45 	17:45 	1 	Présentiel 	B 439
+SP07 		TP 1 	vendredi 	14:30 	16:15 	1 	Présentiel 	Gymnase
+SP07 		TD 1 	vendredi 	16:45 	18:30 	1 	Présentiel 	Gymnase

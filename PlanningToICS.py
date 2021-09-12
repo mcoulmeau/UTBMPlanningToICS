@@ -1,7 +1,7 @@
 '''
-| | | |/ _/ | || |  V  | 
-| |_| | \_| | \/ | \_/ | 
-|___|_|\__/_|\__/|_| |_| 
+| | | |/ _/ | || |  V  |
+| |_| | \_| | \/ | \_/ |
+|___|_|\__/_|\__/|_| |_|
 
 |**********************************************************************;
 * Project           : UTBMPlanningToICS Tool
@@ -22,6 +22,7 @@
 from ics import Calendar, Event
 import re
 from datetime import datetime, timedelta
+from dateutil import parser
 import codecs
 from os import path, listdir
 import csv
@@ -42,10 +43,10 @@ frStrings = {
     'noSemesterFile': "Erreur : aucun calendrier semestriel n'a été trouvé dans le répertoire courant. Il est toutefois possible d'en créer un en suivant le modèle donnée dans le README. Merci de recommencer une fois le fichier créé.",
     'severalSemCals': "Plusieurs calendriers semestriels ont été trouvés : {}. Merci de sélectionner celui à considérer en saisissant le code correspondant (A20 par exemple) : ",
     'wrongCode': "La saisie ne correspond pas à un code de semestre. Recommence : ",
-    'errorPeriods' : "Erreur dans le calendrier du semestre : au moins une période est invalide (dates incohérentes ou début>fin) ou porte un type erroné (différent de A/B)",
-    'overlappingPeriods' : "Erreur dans le calendrier du semestre : les deux périodes suivantes se chevauchent : {} et {}",
-    'success' : "Opération terminée ({} événements créés en tout) ! Tu peux maintenant récupérer le fichier output.ics créé dans le répertoire courant, et l'importer sur Google Agenda (ou équivalent).",
-    'errorWritingICS' : "Une erreur s'est produite lors de la finalisation du fichier ICS ({})",
+    'errorPeriods': "Erreur dans le calendrier du semestre : au moins une période est invalide (dates incohérentes ou début>fin) ou porte un type erroné (différent de A/B)",
+    'overlappingPeriods': "Erreur dans le calendrier du semestre : les deux périodes suivantes se chevauchent : {} et {}",
+    'success': "Opération terminée ({} événements créés en tout) ! Tu peux maintenant récupérer le fichier output.ics créé dans le répertoire courant, et l'importer sur Google Agenda (ou équivalent).",
+    'errorWritingICS': "Une erreur s'est produite lors de la finalisation du fichier ICS ({})",
 }
 
 enStrings = {
@@ -64,10 +65,10 @@ enStrings = {
     'noSemesterFile': "Error : no semester calendar was found. Please consider creating it by following the structure given in README file, and try again.",
     'severalSemCals': "Several semester calendars were found : {}. Please select the one to consider by entering the corresponding code (A20 for example) : ",
     'wrongCode': "Given string does not match a semester code. Please try again : ",
-    'errorPeriods' : "Error in semester calendar : at least one period is erroneous (start>end) or has an invalid type (different from A/B)",
-    'overlappingPeriods' : "Error in semester calendar : following periods are overlapping : {} and {}.",
-    'success' : "Operation successfully completed ({} events have been created) ! You can now find the output.ics file into the working directory, and upload it on Google Agenda (or an equivalent software).",
-    'errorWritingICS' : "An error occured while rendering ICS file : ({})",
+    'errorPeriods': "Error in semester calendar : at least one period is erroneous (start>end) or has an invalid type (different from A/B)",
+    'overlappingPeriods': "Error in semester calendar : following periods are overlapping : {} and {}.",
+    'success': "Operation successfully completed ({} events have been created) ! You can now find the output.ics file into the working directory, and upload it on Google Agenda (or an equivalent software).",
+    'errorWritingICS': "An error occured while rendering ICS file : ({})",
 }
 
 daysOfWeekFR = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
@@ -80,7 +81,8 @@ regex_dict = {
     'firstline': '^UV\s*Groupe\s*Jour\s*Début\s*Fin\s*Fréquence\s*Mode d\'enseignement\s*Salle\(s\)\s*$',
     'middleline': '^\s*[A-Z0-9]{4}\s+([A-Z]\s+){0,1}(CM|TD|TP)\s[0-9]{1,2}\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi)\s+([0-9]{1,2}:[0-9]{1,2}\s+){2}[1-2]\s\s+(Distanciel|Présentiel)\s+([A-Z]\s[0-9a-z]{3,4})?\s*$',
     'semesterFile': '^SEM_(A|P)[0-9]{2}.csv$',
-    'ICSDatetime' : "^(DTSTART|DTEND):[0-9]{8}T[0-9]{6}Z$"
+    'ICSDatetime' : '^[0-9]{8}T[0-9]{6}Z$',
+    'ICSDatetimeLine': "^(DTSTART|DTEND):[0-9]{8}T[0-9]{6}Z$",
 }
 
 regex = {}  # dict containing compiled regexs
@@ -90,8 +92,10 @@ OutputFileName = "output.ics"
 for key in regex_dict:
     regex[key] = re.compile(regex_dict[key])
 
+
 def checkFileExistence(filename):
     return path.exists(filename)
+
 
 def validateFile(filename):
     if len(filename) < 5:
@@ -104,6 +108,7 @@ def validateFile(filename):
         print(VerbList['notfound'].format(filename))
         return False
     return True
+
 
 def askGroups(classes):
     Groups = []
@@ -120,12 +125,14 @@ def askGroups(classes):
             Groups.append([classes.index(Class), group])
     return Groups
 
+
 def padTimeWithZeros(timeString):
     DPPos = timeString.index(':')
     b = timeString[0:DPPos]
     if int(b) < 10 and timeString[0] != '0':
         timeString = '0'+timeString
     return timeString
+
 
 def ReadTxt(filename):
     with codecs.open(filename, 'r', encoding='utf-8') as textfile:
@@ -138,7 +145,7 @@ def ReadTxt(filename):
         matchs = 1
     else:
         print(VerbList['wrongheader'])
-    #TODO: review regexs to allow several rooms and fix error relative to tabs
+    # TODO: review regexs to allow several rooms and fix error relative to tabs
     """ for line in raw_lines[1:]:
         if regex['middleline'].match(line):
             matchs += 1
@@ -150,7 +157,7 @@ def ReadTxt(filename):
         return False """
     print(VerbList['readsuccess'])
 
-    Classes = [] #each element must be a subarray in the form [UV_code, type of class, day of week index, start_time, end_time, frequency, room]. room can be "Distanciel" if class is given remotely.
+    Classes = []  # each element must be a subarray in the form [UV_code, type of class, day of week index, start_time, end_time, frequency, room]. room can be "Distanciel" if class is given remotely.
 
     for line in raw_lines[1:]:
         newClass = line.replace('\t', '').split(' ')
@@ -161,15 +168,16 @@ def ReadTxt(filename):
         newClass[2] = daysOfWeekFR.index(newClass[2])
         newClass[5] = int(newClass[5])
         if newClass[6] == "Distanciel":
-            if len(newClass)==7: #no room provided
-                newClass[6]="Distanciel"
+            if len(newClass) == 7:  # no room provided
+                newClass[6] = "Distanciel"
             else:
-                newClass[6]="Distanciel ("+''.join(newClass[7:])+")"
-        else:
+                newClass[6] = "Distanciel ("+''.join(newClass[7:])+")"
+        elif len(newClass) >= 9:
             newClass[6] = newClass[7]+newClass[8]
         newClass = newClass[:7]
         Classes.append(newClass)
     return Classes
+
 
 def findSemesterFile():
     Candidates = [f for f in listdir('.') if path.isfile(f)]
@@ -186,7 +194,7 @@ def findSemesterFile():
     for cand in finalCands:
         finalCands2.append(cand[cand.index('_')+1:cand.index('.')])
     select = input(VerbList['severalSemCals'].format(finalCands))
-    while not select in finalCands:
+    while not select in finalCands2:
         select = input(VerbList['wrongCode'])
     return "SEM_"+select+".csv"
 
@@ -206,25 +214,30 @@ def CheckSemester(filename):  # returns calendar min and max if
             periods.append([startDTT, endDT, row['TYPE']])
     return periods
 
+
 def overlappingTwoPeriods(start_a, end_a, start_b, end_b):
-    return start_a<=start_b and start_b<=end_a or start_b<=start_a and start_a<=end_b
+    return start_a <= start_b and start_b <= end_a or start_b <= start_a and start_a <= end_b
+
 
 def overlappingPeriods(per):
     for period in per:
         for period2 in per[per.index(period)+1:]:
-            if overlappingTwoPeriods(period[0],period[1],period2[0],period2[1]):
-                return [period,period2]
+            if overlappingTwoPeriods(period[0], period[1], period2[0], period2[1]):
+                return [period, period2]
     return False
+
 
 def getGroupOfClass(groups, class_index):
     for group in groups:
-        if group[0]==class_index:
+        if group[0] == class_index:
             return group[1]
     return False
+
 
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
         yield start_date + timedelta(n)
+
 
 def CreateCalendar(groups, Classes, periods):
     global NbEventsCreated
@@ -233,43 +246,75 @@ def CreateCalendar(groups, Classes, periods):
     for period in periods:
         FirstWeekDay = period[0].weekday()
         LastWeekDay = period[1].weekday()
-        for i in range(FirstWeekDay,LastWeekDay+1):
+        for i in range(FirstWeekDay, LastWeekDay+1):
             for Class in Classes:
-                if Class[2]==i:
-                    if Class[5]==1 or getGroupOfClass(groups,Classes.index(Class))==period[2]: #if frequency is 1 (class occuring each week) or if group matches period
+                if Class[2] == i:
+                    # if frequency is 1 (class occuring each week) or if group matches period
+                    if Class[5] == 1 or getGroupOfClass(groups, Classes.index(Class)) == period[2]:
                         e = Event()
-                        startDT = period[0]+timedelta(Class[2]-period[0].weekday())
-                        startDT = startDT.replace(hour=int(Class[3][:Class[3].index(':')]))
+                        startDT = period[0] + \
+                            timedelta(Class[2]-period[0].weekday())
+                        startDT = startDT.replace(
+                            hour=int(Class[3][:Class[3].index(':')]))
                         startDT = startDT.replace(
                             minute=int(Class[3][Class[3].index(':')+1:]))
-                        endDT = startDT.replace(hour=int(Class[4][:Class[4].index(':')]))
-                        endDT = endDT.replace(minute=int(Class[4][Class[4].index(':')+1:]))
+                        endDT = startDT.replace(
+                            hour=int(Class[4][:Class[4].index(':')]))
+                        endDT = endDT.replace(minute=int(
+                            Class[4][Class[4].index(':')+1:]))
                         e.begin = startDT.strftime(dateFormat)
                         e.end = endDT.strftime(dateFormat)
                         e.location = Class[6]
                         e.name = Class[0]+" ("+Class[1]+")"
                         cal.events.add(e)
-                        NbEventsCreated+=1          
+                        NbEventsCreated += 1
     return cal
 
-def LocalizeICSTimes(filename): #deletes all Z characters in UTC timestamps inside ICS file, replacing all UTC-based times by local ones
+
+# deletes all Z characters in UTC timestamps inside ICS file, replacing all UTC-based times by local ones
+def LocalizeICSTimes(filename):
     try:
-        with open(filename,'r') as ICSFile:
+        with open(filename, 'r') as ICSFile:
             data = ICSFile.readlines()
     except EnvironmentError:
         return False
     newData = []
     for line in data:
-        if(regex['ICSDatetime'].match(line)):
-            newData.append(line.replace('00Z','00'))
+        if(regex['ICSDatetimeLine'].match(line)):
+            newData.append(line.replace('00Z', '00'))
         else:
             newData.append(line)
     try:
-        with open(filename,'w') as ICSFile:
+        with open(filename, 'w') as ICSFile:
             ICSFile.writelines(newData)
     except EnvironmentError:
         return False
     return True
+
+"""Shifts all events 
+"""
+def shiftICSTimes(filename, shift):
+  try:
+    with open(filename, 'r') as ICSFIle:
+      data = ICSFIle.readlines()
+  except EnvironmentError:
+      return False
+  newData = []
+  delta = timedelta(hours=shift)
+  for line in data:
+        if(regex['ICSDatetimeLine'].match(line)):
+            DT = re.search(regex['ICSDatetime'], line).group(1)
+            DT = parser.parse(DT)
+            DT+=delta
+            newData.append(('DTEND:' if 'DTEND' in line else 'DTSTART:')+DT.strftime('%Y%m%dT%H%M%SZ'))
+        else:
+            newData.append(line)
+  try:
+      with open(filename,'w') as ICSFile:
+          ICSFile.writelines(newData)
+  except EnvironmentError:
+      return False
+  return True
 
 def CheckICS(filename):
     startOfEvents = 0
@@ -345,8 +390,8 @@ if __name__ == "__main__":
         elif SelectedLang == 'fr':
             print(VerbList['errorWritingICS'].format(str(abs(EventsDelta))+" événements "+("s" if abs(EventsDelta)!=1 else "")+("manquants" if EventsDelta<0 else "en trop")))
         exit(0)
-    if not LocalizeICSTimes(OutputFileName):
-        print(VerbList['errorWritingICS'].format("reading permission denied" if SelectedLang=='EN' else "permission de lecture refusée"))
-        exit(0)
+    if not LocalizeICSTimes(OutputFileName) or not shiftICSTimes(OutputFileName, -2):
+      print(VerbList['errorWritingICS'].format("reading permission denied" if SelectedLang=='EN' else "permission de lecture refusée"))
+      exit(0)
 
     print(VerbList['success'].format(NbEventsCreated))
